@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Product</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f7fc;
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 800px;
+            margin: 50px auto;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            padding: 30px;
+        }
+
+        h2 {
+            text-align: center;
+            color: #333;
+            font-size: 24px;
+            margin-bottom: 30px;
+        }
+
+        form {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 15px;
+        }
+
+        label {
+            font-size: 16px;
+            color: #333;
+        }
+
+        input[type="text"],
+        input[type="number"],
+        input[type="file"] {
+            padding: 10px;
+            font-size: 16px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        input[type="submit"] {
+            background-color: #4CAF50;
+            color: #fff;
+            padding: 12px 20px;
+            font-size: 16px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        input[type="submit"]:hover {
+            background-color: #45a049;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        /* Flash message styling */
+        .flash-message {
+            margin-bottom: 20px;
+        }
+
+        .flash-message .alert {
+            margin-bottom: 0;
+        }
+
+        .alert-success {
+            background-color: #28a745;
+            color: white;
+            padding: 15px;
+            border-radius: 5px;
+        }
+
+        .alert-danger {
+            background-color: #dc3545;
+            color: white;
+            padding: 15px;
+            border-radius: 5px;
+        }
+
+        .alert-info {
+            background-color: #17a2b8;
+            color: white;
+            padding: 15px;
+            border-radius: 5px;
+        }
+
+        .alert-warning {
+            background-color: #ffc107;
+            color: white;
+            padding: 15px;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h2>Edit Product</h2>
+
+        <!-- Display Latest Flash Message -->
+        <!-- Display Latest Flash Message -->
+        {% with message = get_flashed_messages(with_categories=true) %}
+        {% if message %}
+        <div class="flash-message">
+            <!-- Display only the first message in the list -->
+            <div class="alert 
+        {% if message[-1][0] == 'success' %}alert-success{% endif %}
+        {% if message[-1][0] == 'error' %}alert-danger{% endif %}
+        {% if message[-1][0] == 'info' %}alert-info{% endif %}
+        {% if message[-1][0] == 'warning' %}alert-warning{% endif %}" role="alert">
+                {{ message[-1][1] }}
+            </div>
+        </div>
+        {% endif %}
+        {% endwith %}
+
+        <!-- Product Edit Form -->
+        <form method="POST" enctype="multipart/form-data">
+            {{ form.hidden_tag() }}
+
+            <div class="form-group">
+                <label for="name">{{ form.name.label }}</label>
+                {{ form.name() }}
+            </div>
+
+            <div class="form-group">
+                <label for="price">{{ form.price.label }}</label>
+                {{ form.price() }}
+            </div>
+
+            <div class="form-group">
+                <label for="quantity">{{ form.quantity.label }}</label>
+                {{ form.quantity() }}
+            </div>
+
+            <div class="form-group">
+                <label for="image">{{ form.image.label }}</label>
+                {{ form.image() }}
+            </div>
+
+            <div class="form-group">
+                {{ form.submit() }}
+            </div>
+        </form>
+    </div>
+</body>
+
+</html>

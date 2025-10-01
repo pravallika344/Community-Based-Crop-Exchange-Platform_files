@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Products</title>
+    <style>
+        /* General Styles */
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f4f7f6;
+            color: #333;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            min-height: 100vh;
+            box-sizing: border-box;
+            padding-top: 50px;
+        }
+
+        h2 {
+            text-align: center;
+            font-size: 2rem;
+            margin-bottom: 30px;
+        }
+
+        .product-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 20px;
+            width: 90%;
+            max-width: 1200px;
+        }
+
+        .product-card {
+            background-color: #fff;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            transition: transform 0.3s ease-in-out;
+        }
+
+        .product-card:hover {
+            transform: scale(1.05);
+        }
+
+        .product-image img {
+            width: 100%;
+            border-radius: 10px;
+            max-height: 200px;
+            object-fit: cover;
+        }
+
+        .product-info {
+            margin-top: 15px;
+        }
+
+        .product-info h3 {
+            font-size: 1.4rem;
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .product-info p {
+            font-size: 1rem;
+            color: #777;
+            margin: 5px 0;
+        }
+
+        .btn {
+            background-color: #4CAF50;
+            color: white;
+            padding: 12px 20px;
+            text-decoration: none;
+            border-radius: 5px;
+            font-size: 1rem;
+            width: 100%;
+            /* Full width */
+            display: block;
+            text-align: center;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            margin-top: 10px;
+        }
+
+        .btn:hover {
+            background-color: #45a049;
+        }
+
+        .actions {
+            display: flex;
+            flex-direction: column;
+            /* Stack buttons vertically */
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .actions button {
+            background-color: #4CAF50;
+            border: none;
+            color: white;
+            padding: 12px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            font-size: 1rem;
+            width: 100%;
+            /* Full width */
+            display: block;
+            text-align: center;
+        }
+
+        .actions button:hover {
+            background-color: #45a049;
+        }
+
+        form {
+            display: inline;
+        }
+
+        /* Dashboard Button Styling */
+        .dashboard-btn {
+            display: block;
+            width: 250px;
+            margin: 40px auto;
+            background-color: #007bff;
+            color: white;
+            padding: 14px;
+            text-align: center;
+            font-size: 18px;
+            border-radius: 6px;
+            text-decoration: none;
+            transition: background-color 0.3s ease;
+        }
+
+        .dashboard-btn:hover {
+            background-color: #0056b3;
+        }
+
+        /* Flash message styling */
+        .flash-message {
+            margin-bottom: 20px;
+        }
+
+        .flash-message .alert {
+            margin-bottom: 0;
+        }
+
+        .alert-success {
+            background-color: #28a745;
+            color: white;
+            padding: 15px;
+            border-radius: 5px;
+        }
+
+        .alert-danger {
+            background-color: #dc3545;
+            color: white;
+            padding: 15px;
+            border-radius: 5px;
+        }
+
+        .alert-info {
+            background-color: #17a2b8;
+            color: white;
+            padding: 15px;
+            border-radius: 5px;
+        }
+
+        .alert-warning {
+            background-color: #ffc107;
+            color: white;
+            padding: 15px;
+            border-radius: 5px;
+        }
+
+        /* Responsive Styling */
+        @media (max-width: 768px) {
+            .product-container {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .product-container {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div>
+        <h2>All Products</h2>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+        <div class="flash-message">
+            <div class="alert 
+                {% if messages[0][0] == 'success' %}alert-success{% endif %}
+                {% if messages[0][0] == 'error' %}alert-danger{% endif %}
+                {% if messages[0][0] == 'info' %}alert-info{% endif %}
+                {% if messages[0][0] == 'warning' %}alert-warning{% endif %}"
+                role="alert">
+                {{ messages[0][1] }}
+            </div>
+        </div>
+        {% endif %}
+        {% endwith %}
+
+        <div class="product-container">
+            {% for product in products %}
+            <div class="product-card">
+                <div class="product-image">
+                    {% if product.image %}
+                    <img src="{{ url_for('static', filename='uploads/' + product.image) }}" alt="{{ product.name }}">
+                    {% endif %}
+                </div>
+                <div class="product-info">
+                    <h3>{{ product.name }}</h3>
+                    <p><strong>Price:</strong> ₹{{ product.price }}</p>
+                    <p><strong>Quantity:</strong> {{ product.quantity }}</p>
+                </div>
+
+                {% if current_user.is_authenticated %}
+                {% if current_user.id == product.farmer_id %}
+                <div class="actions">
+                    <!-- Farmer Actions -->
+                    <form method="POST" action="{{ url_for('product.edit_product', product_id=product.id) }}">
+                        <button type="submit">Edit</button>
+                    </form>
+                    <form method="POST" action="{{ url_for('product.delete_product', product_id=product.id) }}" style="display:inline;">
+                        <button type="submit" class="btn">Delete</button>
+                    </form>
+                </div>
+                {% elif current_user.role == 'buyer' %}
+                <!-- Buyer Action: Buy Now -->
+                <div class="actions">
+                    <form method="POST" action="{{ url_for('order.place_order', product_id=product.id) }}">
+                        <button type="submit">Buy Now</button>
+                    </form>
+                </div>
+                {% endif %}
+                {% endif %}
+
+                {% if current_user.id != product.farmer_id %}
+                <p><strong>This product was added by another farmer: </strong>
+                    {% if product.farmer %}
+                    {{ product.farmer.username }}
+                    {% else %}
+                    Unknown Farmer
+                    {% endif %}
+                </p>
+                {% endif %}
+            </div>
+            {% endfor %}
+        </div>
+
+        <a href="{{ url_for('dashboard') }}" class="dashboard-btn">Go to Dashboard</a>
+    </div>
+
+</body>
+
+</html>

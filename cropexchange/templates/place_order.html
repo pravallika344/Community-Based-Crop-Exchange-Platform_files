@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Place Order</title>
+    <style>
+        /* General Styles */
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f4f7f6;
+            color: #333;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            box-sizing: border-box;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 600px;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            padding: 30px;
+            margin: 30px;
+        }
+
+        h2 {
+            text-align: center;
+            font-size: 2rem;
+            margin-bottom: 20px;
+        }
+
+        p {
+            font-size: 1rem;
+            color: #555;
+            margin-bottom: 20px;
+        }
+
+        label {
+            font-size: 1rem;
+            color: #333;
+            margin-bottom: 10px;
+            display: block;
+        }
+
+        input[type="number"] {
+            padding: 10px;
+            font-size: 16px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        .total-price {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        input[type="submit"] {
+            background-color: #4CAF50;
+            color: white;
+            padding: 12px 20px;
+            font-size: 16px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            width: 100%;
+            transition: background-color 0.3s;
+        }
+
+        input[type="submit"]:hover {
+            background-color: #45a049;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .container {
+                padding: 20px;
+            }
+        }
+
+        /* Flash message styling */
+        .flash-message {
+            margin-bottom: 20px;
+        }
+
+        .flash-message .alert {
+            margin-bottom: 0;
+        }
+
+        .alert-success {
+            background-color: #28a745;
+            color: white;
+            padding: 15px;
+            border-radius: 5px;
+        }
+
+        .alert-danger {
+            background-color: #dc3545;
+            color: white;
+            padding: 15px;
+            border-radius: 5px;
+        }
+
+        .alert-info {
+            background-color: #17a2b8;
+            color: white;
+            padding: 15px;
+            border-radius: 5px;
+        }
+
+        .alert-warning {
+            background-color: #ffc107;
+            color: white;
+            padding: 15px;
+            border-radius: 5px;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+
+            to {
+                opacity: 1;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    {% with message = get_flashed_messages(with_categories=true) %}
+    {% if message %}
+    <div class="flash-message">
+        <!-- Display only the last message in the list -->
+        <div class="alert 
+                {% if message[-1][0] == 'success' %}alert-success{% endif %}
+                {% if message[-1][0] == 'error' %}alert-danger{% endif %}
+                {% if message[-1][0] == 'info' %}alert-info{% endif %}
+                {% if message[-1][0] == 'warning' %}alert-warning{% endif %}" role="alert">
+            {{ message[-1][1] }}
+        </div>
+    </div>
+    {% endif %}
+    {% endwith %}
+
+    <div class="container">
+        <h2>Order {{ product.name }}</h2>
+        <form method="POST">
+            {{ form.hidden_tag() }}
+            <p>Price: ₹{{ product.price }} per unit</p>
+
+            <div class="form-group">
+                <label for="quantity">{{ form.quantity.label }}</label>
+                {{ form.quantity() }}
+            </div>
+
+            <p class="total-price">Total Price: ₹<span id="total_price">0</span></p>
+
+            <div class="form-group">
+                <input type="submit" value="Place Order">
+            </div>
+        </form>
+    </div>
+
+    <script>
+        document.querySelector("#quantity").addEventListener("input", function () {
+            let price = {{ product.price }};
+        };
+        let quantity = this.value;
+        document.querySelector("#total_price").innerText = price * quantity;
+        });
+    </script>
+
+</body>
+
+</html>

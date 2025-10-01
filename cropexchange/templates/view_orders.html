@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Orders</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f4f7fc;
+            margin: 0;
+            padding: 0;
+            color: #333;
+        }
+        .container {
+            max-width: 1000px;
+            margin: 50px auto;
+            background-color: #fff;
+            border-radius: 10px;
+            padding: 30px;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+        }
+        h2 {
+            text-align: center;
+            font-size: 28px;
+            color: #333;
+            margin-bottom: 30px;
+        }
+        .order {
+            background-color: #f9f9f9;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        .order h3 {
+            font-size: 24px;
+            margin-bottom: 10px;
+            color: #2c3e50;
+        }
+        .order p {
+            font-size: 16px;
+            color: #555;
+            margin: 8px 0;
+        }
+        .order .status {
+            font-weight: bold;
+            font-size: 16px;
+            color: #2ecc71; /* Green for approved */
+        }
+        .order .status.pending {
+            color: #f39c12; /* Yellow for pending */
+        }
+        .order .status.rejected {
+            color: #e74c3c; /* Red for rejected */
+        }
+        .order button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 12px 20px;
+            font-size: 16px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            margin-right: 10px;
+            margin-top: 10px;
+        }
+        .order button:hover {
+            background-color: #45a049;
+        }
+        .order .btn-reject {
+            background-color: #e74c3c;
+        }
+        .order .btn-reject:hover {
+            background-color: #c0392b;
+        }
+        .order .btn-shipped {
+            background-color: #3498db;
+        }
+        .order .btn-shipped:hover {
+            background-color: #2980b9;
+        }
+        .order .btn-delivered {
+            background-color: #2ecc71;
+        }
+        .order .btn-delivered:hover {
+            background-color: #27ae60;
+        }
+        .dashboard-btn {
+            display: block;
+            width: 200px;
+            margin: 30px auto 0;
+            background-color: #007bff;
+            color: white;
+            padding: 14px;
+            text-align: center;
+            font-size: 18px;
+            border-radius: 6px;
+            text-decoration: none;
+        }
+        .dashboard-btn:hover {
+            background-color: #0056b3;
+        }
+        .no-orders {
+            text-align: center;
+            font-size: 20px;
+            color: #777;
+            padding: 40px;
+        }
+
+        /* Flash message styling */
+        .flash-message {
+            margin-bottom: 20px;
+        }
+
+        .flash-message .alert {
+            margin-bottom: 0;
+        }
+
+        .alert-success {
+            background-color: #28a745;
+            color: white;
+            padding: 15px;
+            border-radius: 5px;
+        }
+
+        .alert-danger {
+            background-color: #dc3545;
+            color: white;
+            padding: 15px;
+            border-radius: 5px;
+        }
+
+        .alert-info {
+            background-color: #17a2b8;
+            color: white;
+            padding: 15px;
+            border-radius: 5px;
+        }
+
+        .alert-warning {
+            background-color: #ffc107;
+            color: white;
+            padding: 15px;
+            border-radius: 5px;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h2>Orders</h2>
+
+        <!-- Flash Message -->
+        {% with message = get_flashed_messages(with_categories=true) %}
+            {% if message %}
+                <div class="flash-message">
+                    <!-- Display only the last message in the list -->
+                    <div class="alert 
+                        {% if message[-1][0] == 'success' %}alert-success{% endif %}
+                        {% if message[-1][0] == 'error' %}alert-danger{% endif %}
+                        {% if message[-1][0] == 'info' %}alert-info{% endif %}
+                        {% if message[-1][0] == 'warning' %}alert-warning{% endif %}"
+                        role="alert">
+                        {{ message[-1][1] }}
+                    </div>
+                </div>
+            {% endif %}
+        {% endwith %}
+
+        {% if orders|length == 0 %}
+        <div class="no-orders">
+            <h3>No orders yet!</h3>
+            <p>Looks like you're all set for now. Time to get busy!</p>
+        </div>
+        {% else %}
+            {% for order in orders %}
+            <div class="order">
+                <h3>{{ order.product.name }}</h3>
+                <p><strong>Quantity:</strong> {{ order.quantity }}</p>
+                <p><strong>Total Price:</strong> ₹{{ order.total_price }}</p>
+                <p><strong>Status:</strong> <span class="status {{ order.status|lower }}">{{ order.status }}</span></p>
+
+                {% if current_user.role == 'farmer' and order.status == 'Pending' %}
+                <form method="POST" action="{{ url_for('order.update_order', order_id=order.id, status='Approved') }}" style="display:inline;">
+                    <button type="submit" class="btn-approve">Approve</button>
+                </form>
+                <form method="POST" action="{{ url_for('order.update_order', order_id=order.id, status='Rejected') }}" style="display:inline;">
+                    <button type="submit" class="btn-reject">Reject</button>
+                </form>
+                {% endif %}
+
+                {% if current_user.role == 'farmer' and order.status == 'Approved' %}
+                <form method="POST" action="{{ url_for('order.update_order', order_id=order.id, status='Shipped') }}" style="display:inline;">
+                    <button type="submit" class="btn-shipped">Shipped</button>
+                </form>
+                {% endif %}
+
+                {% if current_user.role == 'farmer' and order.status == 'Shipped' %}
+                <form method="POST" action="{{ url_for('order.update_order', order_id=order.id, status='Delivered') }}" style="display:inline;">
+                    <button type="submit" class="btn-delivered">Delivered</button>
+                </form>
+                {% endif %}
+            </div>
+            {% endfor %}
+        {% endif %}
+
+        <a href="{{ url_for('dashboard') }}" class="dashboard-btn">Go to Dashboard</a>
+    </div>
+
+</body>
+</html>
